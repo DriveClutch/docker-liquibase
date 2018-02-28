@@ -9,6 +9,6 @@ MSG=$(/app/liquibase/liquibase --changeLogFile=changelog.xml \
 
 ESCAPED_MSG=$(echo "$MSG" | sed 's/"/\"/g' | sed "s/'/\'/g" )
 
-JSON="{\"channel\": \"$CHANNEL\", \"username\": \"deployinator\", \"icon_emoji\": \":rocket:\", \"attachments\": [{\"color\": \"danger\", \"text\": \"${HOSTNAME}\n\`\`\`${ESCAPED_MSG}\`\`\`\"}]}"
+JSON="{\"channel\": \"$CHANNEL\", \"username\": \"deployinator\", \"icon_emoji\": \":rocket:\", \"attachments\": [{\"color\": \"danger\", \"text\": \"<!here> ${HOSTNAME}\n\`\`\`${ESCAPED_MSG}\`\`\`\"}]}"
 
 curl -s -d "payload=${JSON}" "$SLACK_WEBHOOK"
