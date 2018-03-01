@@ -7,8 +7,10 @@ MSG=$(/app/liquibase/liquibase --changeLogFile=changelog.xml \
  --password=${PGS_PASSWORD} \
  update 2>&1)
 
-ESCAPED_MSG=$(echo "$MSG" | sed 's/"/\"/g' | sed "s/'/\'/g" )
+if [[ ! -z "$SLACK_WEBHOOK" ]]; then
+    ESCAPED_MSG=$(echo "$MSG" | sed 's/"/\"/g' | sed "s/'/\'/g" )
 
-JSON="{\"channel\": \"$CHANNEL\", \"username\": \"deployinator\", \"icon_emoji\": \":rocket:\", \"attachments\": [{\"color\": \"danger\", \"text\": \"<!here> ${HOSTNAME}\n\`\`\`${ESCAPED_MSG}\`\`\`\"}]}"
+    JSON="{\"channel\": \"$CHANNEL\", \"username\": \"deployinator\", \"icon_emoji\": \":rocket:\", \"attachments\": [{\"color\": \"danger\", \"text\": \"<!here> ${HOSTNAME}\n\`\`\`${ESCAPED_MSG}\`\`\`\"}]}"
 
-curl -s -d "payload=${JSON}" "$SLACK_WEBHOOK"
+    curl -s -d "payload=${JSON}" "$SLACK_WEBHOOK"
+fi
