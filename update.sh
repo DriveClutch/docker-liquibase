@@ -2,7 +2,7 @@ MSG=$(/app/liquibase/liquibase --changeLogFile=changelog.xml \
  --driver=org.postgresql.Driver \
  --classpath=/app/jdbc_drivers/postgresql-42.1.4.jar \
  --url=jdbc:postgresql://${PGS_HOST}:${PGS_PORT}/${PGS_DB} \
- --defaultSchemaName=vehicle_assignment \
+ --defaultSchemaName=${SCHEMA} \
  --username=${PGS_USERNAME} \
  --password=${PGS_PASSWORD} \
  update 2>&1)
