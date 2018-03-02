@@ -1,6 +1,11 @@
 #!/bin/sh
 # Run liquibase, posting result to slack webhook if $SLACK_WEBHOOK is set
 
+# Prefix stdout with 'SEV=WARN' to help delimit log messages
+warnify() {
+	awk 'BEGIN {print "SEV=WARN"} {print $0}'
+}
+
 # Function to describe the changelogs that will be run
 diff_status() {
 	/app/liquibase/liquibase \
@@ -43,6 +48,9 @@ run_liquibase() {
 # Init the log file
 touch LOGFILE
 # Initialize our pipe for redirection
+if [[ -p "pipe0" ]]; then
+	rm pipe0
+fi
 mkfifo pipe0
 echo '
 SEV=WARN
@@ -50,24 +58,29 @@ SEV=WARN
 Changeset Overview:
 **************************************************************' | tee -a LOGFILE
 # Tee to stdout and capture in log file
-tee -a LOGFILE < pipe0 &
+tee -a LOGFILE < pipe0 | warnify &
 
 # Run diff status to see output of changelogs to run
 diff_status > pipe0
 
 # Just log the update sql, don't put in log for slack message
 echo '
+SEV=WARN
 **************************************************************
 Liquibase update SQL
 **************************************************************'
-update_sql
+update_sql | warnify
 
 # Initialize our pipe for redirection
+if [[ -p "pipe1" ]]; then
+	rm pipe1
+fi
 mkfifo pipe1
 # Tee to stdout and capture in log file
-tee -a LOGFILE < pipe1 &
+tee -a LOGFILE < pipe1 | warnify &
 # Delimiter in logfile
 echo '
+SEV=WARN
 **************************************************************
 Liquibase run output:
 **************************************************************' | tee -a LOGFILE
