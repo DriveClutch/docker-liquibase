@@ -45,6 +45,7 @@ touch LOGFILE
 # Initialize our pipe for redirection
 mkfifo pipe0
 echo '
+SEV=WARN
 **************************************************************
 Changeset Overview:
 **************************************************************' | tee -a LOGFILE
