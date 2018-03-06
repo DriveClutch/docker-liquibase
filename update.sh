@@ -6,9 +6,8 @@ warnify() {
 	awk 'BEGIN {print "SEV=WARN"} {print $0}'
 }
 
-# Function to describe the changelogs that will be run
-diff_status() {
-	/app/liquibase/liquibase \
+liquibase() {
+  /app/liquibase/liquibase \
 		--changeLogFile=changelog.xml \
 		--driver=org.postgresql.Driver \
 		--classpath=/app/jdbc_drivers/postgresql-42.1.4.jar \
@@ -16,33 +15,28 @@ diff_status() {
 		--defaultSchemaName=${SCHEMA} \
 		--username=${PGS_USERNAME} \
 		--password=${PGS_PASSWORD} \
-		status --verbose 2>&1
+		"$@" \
+		2>&1
+}
+
+# Function to describe the change sets that will be run
+diff_unexpected() {
+	liquibase unexpectedChangeSets --verbose
+}
+
+# Function to describe the change sets that will be run
+diff_status() {
+	liquibase status --verbose
 }
 
 # Function to output the SQL that will be run
 update_sql() {
-	/app/liquibase/liquibase \
-		--changeLogFile=changelog.xml \
-		--driver=org.postgresql.Driver \
-		--classpath=/app/jdbc_drivers/postgresql-42.1.4.jar \
-		--url=jdbc:postgresql://${PGS_HOST}:${PGS_PORT}/${PGS_DB} \
-		--defaultSchemaName=${SCHEMA} \
-		--username=${PGS_USERNAME} \
-		--password=${PGS_PASSWORD} \
-		updateSQL 2>&1
+	liquibase updateSQL
 }
 
 # Function to actually run the liquibase command
 run_liquibase() { 
-	/app/liquibase/liquibase \
-		--changeLogFile=changelog.xml \
-		--driver=org.postgresql.Driver \
-		--classpath=/app/jdbc_drivers/postgresql-42.1.4.jar \
-		--url=jdbc:postgresql://${PGS_HOST}:${PGS_PORT}/${PGS_DB} \
-		--defaultSchemaName=${SCHEMA} \
-		--username=${PGS_USERNAME} \
-		--password=${PGS_PASSWORD} \
-		update 2>&1
+	liquibase update
 }
 
 # Init the log file
@@ -52,15 +46,27 @@ if [[ -p "pipe0" ]]; then
 	rm pipe0
 fi
 mkfifo pipe0
+
 echo '
 SEV=WARN
 **************************************************************
-Changeset Overview:
+Unexpected Change Set Overview:
 **************************************************************' | tee -a LOGFILE
 # Tee to stdout and capture in log file
 tee -a LOGFILE < pipe0 | warnify &
 
-# Run diff status to see output of changelogs to run
+# Run diff status to see output of change sets to run
+diff_unexpected > pipe0
+
+echo '
+SEV=WARN
+**************************************************************
+Change Set Overview:
+**************************************************************' | tee -a LOGFILE
+# Tee to stdout and capture in log file
+tee -a LOGFILE < pipe0 | warnify &
+
+# Run diff status to see output of change sets to run
 diff_status > pipe0
 
 # Just log the update sql, don't put in log for slack message
@@ -78,6 +84,7 @@ fi
 mkfifo pipe1
 # Tee to stdout and capture in log file
 tee -a LOGFILE < pipe1 | warnify &
+
 # Delimiter in logfile
 echo '
 SEV=WARN
