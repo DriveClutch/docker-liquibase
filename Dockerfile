@@ -1,17 +1,21 @@
 FROM driveclutch/alpine-java:1.0
 
 USER root
-RUN apk --no-cache add curl
 
-COPY lib/liquibase-3.5.3-bin.tar.gz /tmp/liquibase-3.5.3-bin.tar.gz
-RUN mkdir liquibase
-RUN tar -xzf /tmp/liquibase-3.5.3-bin.tar.gz -C liquibase
-RUN chmod +x liquibase/liquibase
+RUN echo "@edge http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
+    apk update && \
+    apk add "libpq@edge<9.7" "postgresql-client@edge<9.7" && \
+    rm -rf /var/cache/apk/*
 
-RUN mkdir jdbc_drivers
-COPY lib/postgresql-42.1.4.jar jdbc_drivers/
+COPY lib/* /tmp/
 
-RUN mkdir migrations
+RUN mkdir liquibase && \
+    tar -xzf /tmp/liquibase-3.5.3-bin.tar.gz -C liquibase && \
+    chmod +x liquibase/liquibase && \
+    mkdir jdbc_drivers && \
+    mv /tmp/postgresql-42.1.4.jar jdbc_drivers && \
+    mkdir migrations
+
 WORKDIR migrations
 
 COPY update.sh /app
