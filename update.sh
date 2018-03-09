@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/sh
 # Run liquibase, posting result to slack webhook if $SLACK_WEBHOOK is set
 
 # Prefix stdout with 'SEV=WARN' to help delimit log messages
@@ -16,6 +16,23 @@ ensure_schema() {
 		--username="${PGS_USERNAME}" \
 		--command="CREATE SCHEMA IF NOT EXISTS ${SCHEMA};" 2>&1
 }
+
+# Function to post output to configured slack webhook, if exists
+post_to_slack() {
+	if [[ ! -z "$SLACK_WEBHOOK" ]]; then
+		echo 'SEV=WARN'
+		echo "Posting to slack at $SLACK_WEBHOOK"
+		# Get ahold of log for slack message
+	       	MY_OUTPUT=$(cat LOGFILE)
+		ESCAPED_MSG=$(echo "$MY_OUTPUT" | sed 's/"/\\"/g')
+		JSON="{\"channel\": \"$CHANNEL\", \"username\": \"deployinator\", \"icon_emoji\": \":rocket:\", \"attachments\": [{\"color\": \"danger\", \"text\": \"<!here> ${HOSTNAME}\n\`\`\`${ESCAPED_MSG}\`\`\`\"}]}"
+		curl -s -S -w"\nSlack Response: Status %{http_code}, %{time_total} seconds, %{size_download} bytes\n" -d "payload=${JSON}" -XPOST "$SLACK_WEBHOOK" 2>&1
+	else
+		echo 'SEV=WARN'
+		echo 'Not posting to slacke, no SLACK_WEBHOOK env var configured'
+	fi
+}
+
 
 # Base liquibase helper
 liquibase() {
@@ -63,42 +80,62 @@ mkfifo my_pipe
 tee -a LOGFILE < my_pipe | warnify &
 
 # Ensure the schem exists
+echo 'SEV=WARN'
 echo '
-SEV=WARN
 **************************************************************
 Ensure schema with psql
 **************************************************************' | tee -a LOGFILE
 ensure_schema > my_pipe
+MY_EXIT_CODE=$?
+wait
+if [[ $MY_EXIT_CODE -gt 0 ]]; then
+	post_to_slack
+	exit $MY_EXIT_CODE
+fi
 
+echo 'SEV=WARN'
 echo '
-SEV=WARN
 **************************************************************
 Unexpected Change Set Overview:
 **************************************************************' | tee -a LOGFILE
 
 # Run diff status to see output of change sets to run
-tee -a LOGFILE < my_pipe | warnify & diff_unexpected > my_pipe
+tee -a LOGFILE < my_pipe | warnify &
+diff_unexpected > my_pipe
+MY_EXIT_CODE=$?
+wait
+if [[ $MY_EXIT_CODE -gt 0 ]]; then
+	post_to_slack
+	exit $MY_EXIT_CODE
+fi
+wait
 
+echo 'SEV=WARN'
 echo '
-SEV=WARN
 **************************************************************
 Change Set Overview:
 **************************************************************' | tee -a LOGFILE
 
 # Run diff status to see output of change sets to run
-tee -a LOGFILE < my_pipe | warnify & diff_status > my_pipe
+tee -a LOGFILE < my_pipe | warnify &
+diff_status > my_pipe
+MY_EXIT_CODE=$?
+wait
+if [[ $MY_EXIT_CODE -gt 0 ]]; then
+	post_to_slack
+	exit $MY_EXIT_CODE
+fi
 
 # Just log the update sql, don't put in log for slack message
+echo 'SEV=WARN'
 echo '
-SEV=WARN
 **************************************************************
 Liquibase update SQL
 **************************************************************'
 update_sql | warnify
 
-# Delimiter in logfile
+echo 'SEV=WARN'
 echo '
-SEV=WARN
 **************************************************************
 Liquibase run output:
 **************************************************************' | tee -a LOGFILE
@@ -109,16 +146,9 @@ run_liquibase > my_pipe
 # Capture exit code of liquibase command
 MY_EXIT_CODE=$?
 
-if [[ ! -z "$SLACK_WEBHOOK" ]]; then
-    # Get ahold of log for slack message
-    MY_OUTPUT=$(cat LOGFILE)
+wait
 
-    ESCAPED_MSG=$(echo "$MY_OUTPUT" | sed 's/"/\"/g' | sed "s/'/\'/g" )
-
-    JSON="{\"channel\": \"$CHANNEL\", \"username\": \"deployinator\", \"icon_emoji\": \":rocket:\", \"attachments\": [{\"color\": \"danger\", \"text\": \"<!here> ${HOSTNAME}\n\`\`\`${ESCAPED_MSG}\`\`\`\"}]}"
-
-    curl -s -d "payload=${JSON}" "$SLACK_WEBHOOK"
-fi
+post_to_slack
 
 # Exit with the liquibase exit code
 exit $MY_EXIT_CODE
