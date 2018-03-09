@@ -14,7 +14,7 @@ ensure_schema() {
 		--host="${PGS_HOST}" \
 		--port="${PGS_PORT}" \
 		--username="${PGS_USERNAME}" \
-		--command="CREATE SCHEMA IF NOT EXISTS ${SCHEMA};"
+		--command="CREATE SCHEMA IF NOT EXISTS ${SCHEMA};" 2>&1
 }
 
 # Base liquibase helper
