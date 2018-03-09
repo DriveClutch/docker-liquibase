@@ -13,6 +13,7 @@ ensure_schema() {
 	PGPASSWORD="${PGS_PASSWORD}" psql \
 		--host="${PGS_HOST}" \
 		--port="${PGS_PORT}" \
+		--dbname="${PGS_DB}" \
 		--username="${PGS_USERNAME}" \
 		--command="CREATE SCHEMA IF NOT EXISTS ${SCHEMA};" 2>&1
 }
