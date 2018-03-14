@@ -20,13 +20,19 @@ ensure_schema() {
 
 # Function to post output to configured slack webhook, if exists
 post_to_slack() {
+	# Takes exit code as optional argument. Defaults to 1, with the effect of posting with `danger` color
+	local my_ec=${1-1}
+	local my_color="danger"
+	if [[ ! $my_ec -gt 0 ]]; then
+		my_color="good"
+	fi
 	if [[ ! -z "$SLACK_WEBHOOK" ]]; then
 		echo 'SEV=WARN'
 		echo "Posting to slack at $SLACK_WEBHOOK"
 		# Get ahold of log for slack message
 	       	MY_OUTPUT=$(cat LOGFILE)
 		ESCAPED_MSG=$(echo "$MY_OUTPUT" | sed 's/"/\\"/g')
-		JSON="{\"channel\": \"$CHANNEL\", \"username\": \"deployinator\", \"icon_emoji\": \":rocket:\", \"attachments\": [{\"color\": \"danger\", \"text\": \"<!here> ${HOSTNAME}\n\`\`\`${ESCAPED_MSG}\`\`\`\"}]}"
+		JSON="{\"channel\": \"$CHANNEL\", \"username\": \"deployinator\", \"icon_emoji\": \":rocket:\", \"attachments\": [{\"color\": \"${my_color}\", \"text\": \"<!here> ${HOSTNAME}\n\`\`\`${ESCAPED_MSG}\`\`\`\"}]}"
 		curl -s -S -w"\nSlack Response: Status %{http_code}, %{time_total} seconds, %{size_download} bytes\n" -d "payload=${JSON}" -XPOST "$SLACK_WEBHOOK" 2>&1
 	else
 		echo 'SEV=WARN'
@@ -149,7 +155,7 @@ MY_EXIT_CODE=$?
 
 wait
 
-post_to_slack
+post_to_slack $MY_EXIT_CODE
 
 # Exit with the liquibase exit code
 exit $MY_EXIT_CODE
