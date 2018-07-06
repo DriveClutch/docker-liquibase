@@ -36,7 +36,7 @@ post_to_slack() {
 		curl -s -S -w"\nSlack Response: Status %{http_code}, %{time_total} seconds, %{size_download} bytes\n" -d "payload=${JSON}" -XPOST "$SLACK_WEBHOOK" 2>&1
 	else
 		echo 'SEV=WARN'
-		echo 'Not posting to slacke, no SLACK_WEBHOOK env var configured'
+		echo 'Not posting to Slack, no SLACK_WEBHOOK env var configured'
 	fi
 }
 
@@ -51,6 +51,7 @@ liquibase() {
 		--defaultSchemaName=${SCHEMA} \
 		--username=${PGS_USERNAME} \
 		--password=${PGS_PASSWORD} \
+    --contexts=${LIQUIBASE_CONTEXTS} \
 		"$@" \
 		2>&1
 }
@@ -71,7 +72,7 @@ update_sql() {
 }
 
 # Function to actually run the liquibase command
-run_liquibase() { 
+run_liquibase() {
 	liquibase update
 }
 
@@ -159,4 +160,3 @@ post_to_slack $MY_EXIT_CODE
 
 # Exit with the liquibase exit code
 exit $MY_EXIT_CODE
-
