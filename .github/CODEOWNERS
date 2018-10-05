@@ -1,0 +1,14 @@
+# Global reviewer -- unless a pattern further down matches,
+# this reviewer will be assigned
+* @DriveClutch/scalawags
+
+# scalawag patterns
+*.scala @DriveClutch/scalawags
+*.conf  @DriveClutch/scalawags
+*.sbt   @DriveClutch/scalawags
+
+# gopher patterns
+*.go           @DriveClutch/gophers
+glide.lock     @DriveClutch/gophers
+glide.yaml     @DriveClutch/gophers
+!/pbgenerated/ @DriveClutch/gophers
