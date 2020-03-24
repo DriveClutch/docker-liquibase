@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Run liquibase, posting result to slack webhook if $SLACK_WEBHOOK is set
 
 # Prefix stdout with 'SEV=WARN' to help delimit log messages
