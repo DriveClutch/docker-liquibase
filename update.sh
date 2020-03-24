@@ -158,5 +158,10 @@ wait
 
 post_to_slack $MY_EXIT_CODE
 
+if [ -x "/app/shutdown.sh" ]; then 
+	/app/shutdown.sh
+	MY_EXIT_CODE=$?
+fi 
+
 # Exit with the liquibase exit code
 exit $MY_EXIT_CODE

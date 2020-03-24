@@ -1,11 +1,12 @@
-FROM driveclutch/alpine-java:1.0
+FROM driveclutch/alpine-java:2.2
 
 USER root
 
-RUN echo "@edge http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
-    apk update && \
-    apk add curl "libpq@edge<9.7" "postgresql-client@edge<9.7" && \
-    rm -rf /var/cache/apk/*
+# RUN apk update && \
+#     apk add curl "libpq@edge<9.7" "postgresql-client@edge<9.7" && \
+#     rm -rf /var/cache/apk/*
+
+RUN apt-get update -y && apt-get install -y libpq-dev postgresql-client curl
 
 COPY lib/* /tmp/
 
