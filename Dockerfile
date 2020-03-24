@@ -1,4 +1,4 @@
-FROM driveclutch/alpine-java:1.0
+FROM driveclutch/alpine-java:2.2
 
 USER root
 
