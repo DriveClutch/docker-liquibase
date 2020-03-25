@@ -96,7 +96,7 @@ Ensure schema with psql
 ensure_schema > my_pipe
 MY_EXIT_CODE=$?
 wait
-if [[ $MY_EXIT_CODE -gt 0 ]]; then
+if [ $MY_EXIT_CODE -gt 0 ]; then
 	post_to_slack
 	exit $MY_EXIT_CODE
 fi
@@ -159,7 +159,7 @@ wait
 post_to_slack $MY_EXIT_CODE
 
 if [ -x "/app/shutdown.sh" ]; then 
-	/app/shutdown.sh
+	/app/shutdown.sh dev1 dbmigrators $SHUTDOWN_SERVICE
 	MY_EXIT_CODE=$?
 fi 
 
