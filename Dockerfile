@@ -18,4 +18,4 @@ WORKDIR migrations
 
 COPY update.sh /app
 
-CMD /app/update.sh
+CMD bash /app/update.sh
