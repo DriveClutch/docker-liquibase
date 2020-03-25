@@ -23,10 +23,10 @@ post_to_slack() {
 	# Takes exit code as optional argument. Defaults to 1, with the effect of posting with `danger` color
 	local my_ec=${1-1}
 	local my_color="danger"
-	if [[ ! $my_ec -gt 0 ]]; then
+	if [ ! $my_ec -gt 0 ]; then
 		my_color="good"
 	fi
-	if [[ ! -z "$SLACK_WEBHOOK" ]]; then
+	if [ ! -z "$SLACK_WEBHOOK" ]; then
 		echo 'SEV=WARN'
 		echo "Posting to slack at $SLACK_WEBHOOK"
 		# Get ahold of log for slack message
@@ -79,7 +79,7 @@ run_liquibase() {
 # Init the log file
 touch LOGFILE
 # Initialize our pipe for redirection
-if [[ -p "my_pipe" ]]; then
+if [ -p "my_pipe" ]; then
 	rm my_pipe
 fi
 mkfifo my_pipe
