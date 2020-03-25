@@ -112,7 +112,7 @@ tee -a LOGFILE < my_pipe | warnify &
 diff_unexpected > my_pipe
 MY_EXIT_CODE=$?
 wait
-if [[ $MY_EXIT_CODE -gt 0 ]]; then
+if [ $MY_EXIT_CODE -gt 0 ]; then
 	post_to_slack
 	exit $MY_EXIT_CODE
 fi
@@ -129,7 +129,7 @@ tee -a LOGFILE < my_pipe | warnify &
 diff_status > my_pipe
 MY_EXIT_CODE=$?
 wait
-if [[ $MY_EXIT_CODE -gt 0 ]]; then
+if [ $MY_EXIT_CODE -gt 0 ]; then
 	post_to_slack
 	exit $MY_EXIT_CODE
 fi
