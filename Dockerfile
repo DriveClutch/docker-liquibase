@@ -2,8 +2,7 @@ FROM driveclutch/alpine-java:2.2
 
 USER root
 
-RUN apt-get update && apt-get install -y --no-install-recommends && \
-    apt-get install -y "postgresql-client-11"
+RUN apt-get update -y && apt-get install -y libpq-dev postgresql-client curl
 
 COPY lib/* /tmp/
 
