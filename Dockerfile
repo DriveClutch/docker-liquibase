@@ -2,11 +2,8 @@ FROM driveclutch/alpine-java:2.2
 
 USER root
 
-# RUN apk update && \
-#     apk add curl "libpq@edge<9.7" "postgresql-client@edge<9.7" && \
-#     rm -rf /var/cache/apk/*
-
-RUN apt-get update -y && apt-get install -y libpq-dev postgresql-client curl
+RUN apt-get update && apt-get install -y --no-install-recommends && \
+    apt-get install -y "postgresql-client-11"
 
 COPY lib/* /tmp/
 
@@ -24,4 +21,4 @@ COPY bin/ecs-set-desired /app/ecs-set-desired
 COPY update.sh /app
 COPY shutdown.sh /app
 
-CMD /app/update.sh
+CMD bash /app/update.sh
