@@ -158,7 +158,7 @@ wait
 
 post_to_slack $MY_EXIT_CODE
 
-if [ -x "/app/shutdown.sh" ]; then 
+if [ -x "/app/shutdown.sh" ]; then 	
 	/app/shutdown.sh dev1 dbmigrators $SHUTDOWN_SERVICE
 	MY_EXIT_CODE=$?
 fi 
