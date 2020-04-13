@@ -158,8 +158,12 @@ wait
 
 post_to_slack $MY_EXIT_CODE
 
+if [ -z "${CLUSTER_NAME}" ]; then
+	CLUSTER_NAME="apps"
+fi
+
 if [ -x "/app/shutdown.sh" ]; then 	
-	/app/shutdown.sh dev1 dbmigrators $SHUTDOWN_SERVICE
+	/app/shutdown.sh $CLUSTER_NAME $SHUTDOWN_SERVICE
 	MY_EXIT_CODE=$?
 fi 
 
