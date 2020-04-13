@@ -158,9 +158,15 @@ wait
 
 post_to_slack $MY_EXIT_CODE
 
-if [ -x "/app/shutdown.sh" ]; then 	
-	/app/shutdown.sh dev1 dbmigrators $SHUTDOWN_SERVICE
-	MY_EXIT_CODE=$?
+if [ -z "${CLUSTER_NAME}" ]; then
+	CLUSTER_NAME="apps"
+fi
+
+if [ ! -z "${SHUTDOWN_SERVICE}" ]; then
+	if [ -x "/app/shutdown.sh" ]; then 	
+		/app/shutdown.sh $CLUSTER_NAME $SHUTDOWN_SERVICE
+		MY_EXIT_CODE=$?
+	fi 
 fi 
 
 # Exit with the liquibase exit code
