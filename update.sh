@@ -23,10 +23,10 @@ post_to_slack() {
 	# Takes exit code as optional argument. Defaults to 1, with the effect of posting with `danger` color
 	local my_ec=${1-1}
 	local my_color="danger"
-	if [[ ! $my_ec -gt 0 ]]; then
+	if [ ! $my_ec -gt 0 ]; then
 		my_color="good"
 	fi
-	if [[ ! -z "$SLACK_WEBHOOK" ]]; then
+	if [ ! -z "$SLACK_WEBHOOK" ]; then
 		echo 'SEV=WARN'
 		echo "Posting to slack at $SLACK_WEBHOOK"
 		# Get ahold of log for slack message
@@ -79,7 +79,7 @@ run_liquibase() {
 # Init the log file
 touch LOGFILE
 # Initialize our pipe for redirection
-if [[ -p "my_pipe" ]]; then
+if [ -p "my_pipe" ]; then
 	rm my_pipe
 fi
 mkfifo my_pipe
@@ -96,7 +96,7 @@ Ensure schema with psql
 ensure_schema > my_pipe
 MY_EXIT_CODE=$?
 wait
-if [[ $MY_EXIT_CODE -gt 0 ]]; then
+if [ $MY_EXIT_CODE -gt 0 ]; then
 	post_to_slack
 	exit $MY_EXIT_CODE
 fi
@@ -112,7 +112,7 @@ tee -a LOGFILE < my_pipe | warnify &
 diff_unexpected > my_pipe
 MY_EXIT_CODE=$?
 wait
-if [[ $MY_EXIT_CODE -gt 0 ]]; then
+if [ $MY_EXIT_CODE -gt 0 ]; then
 	post_to_slack
 	exit $MY_EXIT_CODE
 fi
@@ -129,7 +129,7 @@ tee -a LOGFILE < my_pipe | warnify &
 diff_status > my_pipe
 MY_EXIT_CODE=$?
 wait
-if [[ $MY_EXIT_CODE -gt 0 ]]; then
+if [ $MY_EXIT_CODE -gt 0 ]; then
 	post_to_slack
 	exit $MY_EXIT_CODE
 fi
@@ -157,6 +157,11 @@ MY_EXIT_CODE=$?
 wait
 
 post_to_slack $MY_EXIT_CODE
+
+if [ -x "/app/shutdown.sh" ]; then 	
+	/app/shutdown.sh dev1 dbmigrators $SHUTDOWN_SERVICE
+	MY_EXIT_CODE=$?
+fi 
 
 # Exit with the liquibase exit code
 exit $MY_EXIT_CODE

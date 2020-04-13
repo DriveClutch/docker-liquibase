@@ -16,6 +16,9 @@ RUN mkdir liquibase && \
 
 WORKDIR migrations
 
+COPY bin/ecs-set-desired /app/ecs-set-desired
+
 COPY update.sh /app
+COPY shutdown.sh /app
 
 CMD bash /app/update.sh
