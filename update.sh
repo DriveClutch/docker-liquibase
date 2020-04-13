@@ -162,9 +162,11 @@ if [ -z "${CLUSTER_NAME}" ]; then
 	CLUSTER_NAME="apps"
 fi
 
-if [ -x "/app/shutdown.sh" ]; then 	
-	/app/shutdown.sh $CLUSTER_NAME $SHUTDOWN_SERVICE
-	MY_EXIT_CODE=$?
+if [ ! -z "${SHUTDOWN_SERVICE}" ]; then
+	if [ -x "/app/shutdown.sh" ]; then 	
+		/app/shutdown.sh $CLUSTER_NAME $SHUTDOWN_SERVICE
+		MY_EXIT_CODE=$?
+	fi 
 fi 
 
 # Exit with the liquibase exit code
