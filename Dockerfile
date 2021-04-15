@@ -2,7 +2,7 @@ FROM driveclutch/alpine-java:1.0
 
 USER root
 
-RUN echo "@edge http://nl.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories && \
+RUN echo "@edge http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
     apk update && \
     apk add curl "libpq@edge<9.7" "postgresql-client@edge<9.7" && \
     rm -rf /var/cache/apk/*
