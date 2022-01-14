@@ -6,7 +6,7 @@ jobs:
       - image: driveclutch/circleci-generic:latest
     # Copy the source from github to the working_directory, all commands
     # execute relative to here.
-    working_directory: /src
+    working_directory: /docker-liquibase
     steps:
       # Checkout the repo and load it into the working_directory
       - checkout
