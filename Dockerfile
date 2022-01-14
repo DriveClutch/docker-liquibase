@@ -3,7 +3,7 @@ FROM openjdk:8u312-jdk-slim
 USER root
 
 RUN apt-get update && apt-get install -y --no-install-recommends && \
-    apt-get install -y "postgresql-client-11"
+    apt-get install -y "postgresql-client-12"
 
 COPY lib/* /tmp/
 
