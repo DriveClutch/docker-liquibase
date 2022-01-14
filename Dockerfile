@@ -1,4 +1,4 @@
-FROM openjdk:8u312-jdk-slim
+FROM 458132236648.dkr.ecr.us-east-1.amazonaws.com/master/clutch-java:latest
 
 USER root
 
