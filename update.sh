@@ -46,7 +46,7 @@ liquibase() {
   /app/liquibase/liquibase \
 		--changeLogFile=changelog.xml \
 		--driver=org.postgresql.Driver \
-		--classpath=/app/jdbc_drivers/postgresql-42.1.4.jar \
+		--classpath=/app/jdbc_drivers/postgresql-42.3.1.jar \
 		--url=jdbc:postgresql://${PGS_HOST}:${PGS_PORT}/${PGS_DB} \
 		--defaultSchemaName=${SCHEMA} \
 		--username=${PGS_USERNAME} \

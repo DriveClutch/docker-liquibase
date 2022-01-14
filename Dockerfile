@@ -1,4 +1,4 @@
-FROM driveclutch/alpine-java:2.2
+FROM openjdk:8u312-jdk-slim
 
 USER root
 
@@ -11,7 +11,7 @@ RUN mkdir liquibase && \
     tar -xzf /tmp/liquibase-3.5.3-bin.tar.gz -C liquibase && \
     chmod +x liquibase/liquibase && \
     mkdir jdbc_drivers && \
-    mv /tmp/postgresql-42.1.4.jar jdbc_drivers && \
+    mv /tmp/postgresql-42.3.1.jar jdbc_drivers && \
     mkdir migrations
 
 WORKDIR migrations
