@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends && \
 COPY lib/* /tmp/
 
 RUN mkdir liquibase && \
-    tar -xzf /tmp/liquibase-4.7.0.tar.gz -C liquibase && \
+    tar -xzf /tmp/liquibase-3.10.1.tar.gz -C liquibase && \
     chmod +x liquibase/liquibase && \
     mkdir jdbc_drivers && \
     mv /tmp/postgresql-42.3.1.jar jdbc_drivers && \
