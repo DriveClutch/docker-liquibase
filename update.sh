@@ -30,10 +30,10 @@ post_to_slack() {
 		echo 'SEV=WARN'
 		echo "Posting to slack at $SLACK_WEBHOOK"
 		# Get ahold of log for slack message
-	       	MY_OUTPUT=$(cat LOGFILE)
+	  MY_OUTPUT=$(cat LOGFILE | grep -v "^#")
 		ESCAPED_MSG=$(echo "$MY_OUTPUT" | sed 's/"/\\"/g')
 		JSON="{\"channel\": \"$CHANNEL\", \"username\": \"deployinator\", \"icon_emoji\": \":rocket:\", \"attachments\": [{\"color\": \"${my_color}\", \"text\": \"<!here> ${HOSTNAME}\n\`\`\`${ESCAPED_MSG}\`\`\`\"}]}"
-		curl -s -S -w"\nSlack Response: Status %{http_code}, %{time_total} seconds, %{size_download} bytes\n" -d "payload=${JSON}" -XPOST "$SLACK_WEBHOOK" 2>&1
+		curl -s -S -w"\nSlack Response: Status %{http_code}, %{time_total} seconds, %{size_download} bytes\n" -H "Content-Type: application/json" -d "${JSON}" -XPOST "$SLACK_WEBHOOK" 2>&1
 	else
 		echo 'SEV=WARN'
 		echo 'Not posting to Slack, no SLACK_WEBHOOK env var configured'
@@ -46,7 +46,7 @@ liquibase() {
   /app/liquibase/liquibase \
 		--changeLogFile=changelog.xml \
 		--driver=org.postgresql.Driver \
-		--classpath=/app/jdbc_drivers/postgresql-42.1.4.jar \
+		--classpath=/app/jdbc_drivers/postgresql-42.3.1.jar \
 		--url=jdbc:postgresql://${PGS_HOST}:${PGS_PORT}/${PGS_DB} \
 		--defaultSchemaName=${SCHEMA} \
 		--username=${PGS_USERNAME} \
@@ -77,7 +77,7 @@ run_liquibase() {
 }
 
 # Init the log file
-touch LOGFILE
+echo "" > LOGFILE
 # Initialize our pipe for redirection
 if [ -p "my_pipe" ]; then
 	rm my_pipe

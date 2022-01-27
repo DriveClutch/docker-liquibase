@@ -1,14 +1,35 @@
-orbs:
-  aws-ecr: circleci/aws-ecr@6.9.1
-version: 2.1
+version: 2
+jobs:
+  build:
+    docker:
+      # The first image listed is where the run commands are executed
+      - image: driveclutch/circleci-generic:latest
+    # Copy the source from github to the working_directory, all commands
+    # execute relative to here.
+    working_directory: /docker-liquibase
+    steps:
+      # Checkout the repo and load it into the working_directory
+      - checkout
+      - setup_remote_docker
+      # Deployment: Making the container images, maybe pushing to dev in the
+      # future
+      - run: /tools/docker.sh
+
 workflows:
-  build_and_push_image:
+  version: 2
+  branch:
     jobs:
-      - aws-ecr/build-and-push-image:
+      - build:
           context: org-global
-          create-repo: true
-          dockerfile: Dockerfile
-          no-output-timeout: 20m
-          path: ./
-          repo: $CIRCLE_BRANCH/$CIRCLE_PROJECT_REPONAME
-          tag: latest,$CIRCLE_SHA1
+          filters:
+            tags:
+              ignore: /^.*/
+  tag:
+    jobs:
+      - build:
+          context: org-global
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*/

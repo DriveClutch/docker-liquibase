@@ -1,17 +1,17 @@
-FROM driveclutch/alpine-java:2.2
+FROM 458132236648.dkr.ecr.us-east-1.amazonaws.com/master/clutch-java:latest
 
 USER root
 
 RUN apt-get update && apt-get install -y --no-install-recommends && \
-    apt-get install -y "postgresql-client-11"
+    apt-get install -y "postgresql-client-13"
 
 COPY lib/* /tmp/
 
 RUN mkdir liquibase && \
-    tar -xzf /tmp/liquibase-3.5.3-bin.tar.gz -C liquibase && \
+    tar -xzf /tmp/liquibase-4.7.0.tar.gz -C liquibase && \
     chmod +x liquibase/liquibase && \
     mkdir jdbc_drivers && \
-    mv /tmp/postgresql-42.1.4.jar jdbc_drivers && \
+    mv /tmp/postgresql-42.3.1.jar jdbc_drivers && \
     mkdir migrations
 
 WORKDIR migrations
